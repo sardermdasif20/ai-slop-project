@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>THE LAST FERRY — A Bengali Folk Horror</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;800&family=Hind+Siliguri:wght@400;600&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="game"></div>
+<div id="vignette"></div><div id="grain"></div>
+<div id="intro" class="screen">
+ <div class="eyebrow">A FIRST-PERSON FOLK HORROR EXPERIENCE</div>
+ <h1>THE LAST<br><span>FERRY</span></h1>
+ <div class="bengali">শেষ নৌকা</div>
+ <p class="tagline">Some voices know your name. Never answer after midnight.</p>
+ <div class="story-card"><p><b>RUPA, 1998.</b> A storm has swallowed the road to Char Kaliganj. Your brother Arif vanished on the river eleven years ago. Tonight, a ferryman is waiting at the abandoned ghat — calling you by the name only your family used.</p><p>Find the truth. Recover the six fragments. And whatever you hear from the water… do not follow it.</p></div>
+ <button id="start">ENTER THE GHAT</button><div class="tiny">HEADPHONES RECOMMENDED · WASD TO MOVE · MOUSE TO LOOK</div>
+</div>
+<div id="hud" class="hidden">
+ <div class="topline"><div class="chapter">CHAPTER I <span>· THE FLOOD ROAD</span></div><div class="objective" id="objective">Find the lantern</div></div>
+ <div class="crosshair">+</div>
+ <div class="bottomleft"><div class="label">SANITY</div><div class="meter"><i id="sanity"></i></div><div class="label">LANTERN OIL</div><div class="meter oil"><i id="oil"></i></div></div>
+ <div class="prompt" id="prompt"></div><div class="subtitle" id="subtitle"></div>
+ <div class="note-count" id="notes">MEMORIES 0 / 6</div>
+</div>
+<div id="dialog" class="screen hidden"><div class="dialogbox"><div class="eyebrow" id="speaker">UNKNOWN</div><p id="dialogtext"></p><div id="choices"></div><button id="continue">CONTINUE</button></div></div>
+<div id="ending" class="screen hidden"><div class="eyebrow">THE RIVER REMEMBERS</div><h1 id="endingtitle"></h1><p id="endingtext"></p><button onclick="location.reload()">PLAY AGAIN</button></div>
+<div id="pause" class="hidden"><div>PAUSED</div><small>Click to return</small></div>
+<script type="module" src="game.js"></script>
+</body></html>

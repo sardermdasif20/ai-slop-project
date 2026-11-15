@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>EMERALD RUN — Beyond the Yellow Road</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700;800&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--jade:#0d624d;--deep:#082e29;--mint:#b9e8c9;--gold:#f1c979;--cream:#f5edda;--ink:#173b35}
+*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#071d1b;color:var(--cream);font-family:Manrope,system-ui,sans-serif}
+#game{position:absolute;inset:0;width:100%;height:100%;display:block}
+.vignette{position:absolute;inset:0;pointer-events:none;background:linear-gradient(180deg,#061b1b99 0%,transparent 24%,transparent 70%,#061b1bcc 100%),radial-gradient(ellipse at center,transparent 35%,#03120f66 100%)}
+.hud{position:absolute;inset:0;padding:clamp(14px,2.5vw,30px);display:flex;justify-content:space-between;align-items:flex-start;pointer-events:none}
+.brand{font:700 clamp(18px,2.3vw,27px) Cinzel,serif;letter-spacing:3px;color:#f6e7c6;text-shadow:0 2px 12px #03140f}
+.brand small{display:block;font:700 9px Manrope;letter-spacing:3px;color:#d7bb79;margin-top:5px}
+.hudright{display:flex;gap:10px}
+.pill{min-width:92px;padding:9px 13px;border:1px solid #f4dc9a66;background:linear-gradient(135deg,#092e27dd,#061d1bd9);box-shadow:0 5px 20px #0004;backdrop-filter:blur(8px);clip-path:polygon(0 0,100% 0,100% 78%,90% 100%,0 100%)}
+.pill label{display:block;font-size:8px;font-weight:800;letter-spacing:2px;color:#d9c18d}.pill strong{display:block;font:700 20px Cinzel;color:#fff1ce;margin-top:2px}
+.bottom{position:absolute;left:50%;bottom:22px;transform:translateX(-50%);display:flex;gap:8px;align-items:center;pointer-events:none;white-space:nowrap}
+.hint{font-size:9px;letter-spacing:1px;color:#e9dfc5aa;text-shadow:0 2px 5px #000}
+.key{display:inline-grid;place-items:center;min-width:23px;height:23px;padding:0 6px;border:1px solid #e8d19a77;background:#092a25bb;color:#f4dfad;font-size:9px;margin:0 3px}
+.overlay{position:absolute;inset:0;display:grid;place-items:center;padding:20px;background:linear-gradient(135deg,#061b1bd9,#082b26b8);backdrop-filter:blur(5px);z-index:4}
+.panel{position:relative;width:min(560px,100%);padding:clamp(26px,5vw,48px);background:linear-gradient(145deg,#f4ead2f5,#e5d6b5f5);color:var(--ink);border:1px solid #f6d990;box-shadow:0 28px 100px #0009;text-align:center;clip-path:polygon(0 0,96% 0,100% 7%,100% 100%,4% 100%,0 93%)}
+.panel:before{content:"";position:absolute;inset:9px;border:1px solid #a8874c88;pointer-events:none}
+.eyebrow{font-size:9px;font-weight:800;letter-spacing:3px;color:#98713a}
+h1{font:800 clamp(40px,9vw,76px)/.9 Cinzel,serif;letter-spacing:1px;margin:17px 0 12px;color:#0a503f;text-shadow:0 2px #fff8}
+h1 em{font-style:normal;color:#bd8738}
+.subtitle{font:600 11px Manrope;letter-spacing:2px;color:#9b713b}
+.copy{max-width:420px;margin:20px auto 0;font-size:12px;line-height:1.9;color:#4c6254}
+button{position:relative;margin-top:25px;padding:15px 29px;border:0;background:linear-gradient(110deg,#0b5b47,#138064);color:#fff0cb;font:800 11px Manrope;letter-spacing:2px;cursor:pointer;box-shadow:0 7px 0 #063b30,0 12px 24px #174f3d44;transition:.18s}
+button:hover{transform:translateY(-2px);filter:brightness(1.12)}
+button:active{transform:translateY(4px);box-shadow:0 3px 0 #063b30}
+.smallnote{font-size:9px;color:#7d8068;margin-top:18px;letter-spacing:1px}
+.hidden{display:none!important}
+#pauseBtn{position:absolute;right:28px;bottom:25px;pointer-events:auto;border:1px solid #f4dc9a66;background:#092e27cc;color:#f4dfad;padding:9px 12px;margin:0;font-size:9px}
+@media(max-width:600px){.hud{padding:13px}.hudright{gap:5px}.pill{min-width:65px;padding:7px 8px}.pill strong{font-size:15px}.pill label{font-size:7px}.brand{font-size:16px}.brand small{font-size:7px;letter-spacing:2px}.bottom{bottom:15px}.hint{font-size:8px}.key{height:20px;min-width:20px}#pauseBtn{right:13px;bottom:52px}}
+</style></head>
+<body>
+<canvas id="game"></canvas><div class="vignette"></div>
+<div class="hud">
+ <div class="brand">EMERALD RUN<small>BEYOND THE YELLOW ROAD</small></div>
+ <div class="hudright">
+  <div class="pill"><label>DISTANCE</label><strong id="distance">0</strong></div>
+  <div class="pill"><label>GEMS</label><strong id="gems">0</strong></div>
+  <div class="pill"><label>BEST</label><strong id="best">0</strong></div>
+ </div>
+</div>
+<div class="bottom"><span class="hint"><span class="key">←</span><span class="key">→</span> CHANGE LANE</span><span class="hint"><span class="key">↑</span> JUMP</span><span class="hint"><span class="key">↓</span> SLIDE</span></div>
+<button id="pauseBtn" class="hidden">Ⅱ PAUSE</button>
+<div class="overlay" id="menu"><div class="panel">
+ <div class="eyebrow">THE WITCHING HOUR IS UPON US</div>
+ <h1>EMERALD<br><em>RUN</em></h1><div class="subtitle">A JOURNEY PAST THE EDGE OF OZ</div>
+ <p class="copy">The golden road is crumbling. Sprint through an enchanted kingdom, dodge thorn gates and fallen trees, leap over broken bridges, and gather the emeralds before the storm catches you.</p>
+ <button id="play">ENTER THE KINGDOM ↗</button>
+ <div class="smallnote">A THREE-LANE FANTASY ENDLESS RUNNER · NO DOWNLOADS REQUIRED</div>
+</div></div>
+<div class="overlay hidden" id="result"><div class="panel">
+ <div class="eyebrow" id="resulttag">THE ROAD REMEMBERS</div><h1 id="resulttitle">RUN<br><em>ENDED</em></h1>
+ <p class="copy" id="resultcopy">The storm has caught up with you.</p>
+ <button id="retry">RUN IT BACK ↗</button><div class="smallnote">TIP: JUMP OVER ROOTS · SLIDE UNDER THORN ARCHES</div>
+</div></div>
+<div class="overlay hidden" id="pause"><div class="panel">
+ <div class="eyebrow">TAKE A BREATH, TRAVELLER</div><h1>PAUSED</h1><p class="copy">The yellow road can wait. The storm cannot.</p><button id="resume">CONTINUE RUN ↗</button>
+</div></div>
+<script src="game.js"></script>
+</body></html>

@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>WHISKERWOOD — A Cat's Little World</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Fraunces:opsz,wght@9..144,600;9..144,700;9..144,800&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#293d34;--cream:#f8f2df;--leaf:#4f8761;--gold:#e9bd66;--soft:#a9c9a5;--panel:#fff8e9}
+*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#152c25;color:var(--cream);font-family:'DM Sans',sans-serif}canvas{display:block;width:100%;height:100%;position:absolute;inset:0}
+.hud{position:absolute;inset:0;pointer-events:none;padding:clamp(12px,2vw,24px);display:flex;flex-direction:column;justify-content:space-between}
+.top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}.logo{font:800 clamp(19px,2.7vw,29px) Fraunces,serif;letter-spacing:1px;color:#fff3d6;text-shadow:0 3px 12px #17372b}.logo small{display:block;font:700 9px 'DM Sans';letter-spacing:2px;color:#d9e8b6;margin-top:3px}
+.topright{display:flex;gap:7px;flex-wrap:wrap;justify-content:flex-end}.chip{background:#203f32df;border:1px solid #d5e2b755;padding:8px 11px;min-width:76px;box-shadow:0 4px 16px #0b211955;backdrop-filter:blur(7px);border-radius:10px}.chip label{display:block;font-size:8px;letter-spacing:1.5px;color:#c3d7b3;font-weight:800}.chip strong{font:700 16px Fraunces;color:#fff1cf}
+.bottom{display:flex;align-items:flex-end;justify-content:space-between;gap:10px}.quest{background:#173a2fdc;border:1px solid #c5dba155;border-left:4px solid #e9bd66;padding:11px 14px;border-radius:9px;max-width:350px;box-shadow:0 5px 20px #0b211955}.quest label{font-size:8px;letter-spacing:2px;color:#f0ca7c;font-weight:800}.quest div{font-size:11px;line-height:1.5;margin-top:4px;color:#f8f0d8}.controls{font-size:9px;line-height:2;color:#f8f1d5;text-align:right;text-shadow:0 2px 6px #18372c}.key{display:inline-block;background:#244b39;border:1px solid #c2d6a477;border-radius:4px;padding:0 5px;margin-left:3px}
+.side{position:absolute;right:22px;top:100px;width:180px;pointer-events:none}.meter{background:#17372bdc;border:1px solid #c4d7a455;padding:8px 10px;margin-bottom:7px;border-radius:8px}.meterhead{display:flex;justify-content:space-between;font-size:8px;font-weight:800;letter-spacing:1px;color:#e7edce}.bar{height:6px;background:#10271e;margin-top:6px;border-radius:8px;overflow:hidden}.bar span{display:block;height:100%;width:70%;border-radius:8px;transition:width .2s}.mood{font-size:9px;color:#f5e7c4;text-align:right;margin-top:7px;text-shadow:0 2px 6px #18372c}
+.actionhint{position:absolute;left:50%;bottom:105px;transform:translateX(-50%);padding:8px 13px;background:#17372be8;border:1px solid #d5e2b777;border-radius:20px;font-size:10px;color:#fff4d8;white-space:nowrap;opacity:0;transition:.2s;pointer-events:none}
+#minimap{position:absolute;left:22px;top:100px;width:148px;height:112px;border:2px solid #d5dfaeaa;border-radius:10px;background:#193d2ccc;box-shadow:0 5px 20px #0b211955;pointer-events:none}
+.menu{position:absolute;inset:0;display:grid;place-items:center;padding:18px;background:linear-gradient(180deg,#102b24a8,#0d281fd9);backdrop-filter:blur(4px);z-index:5}.card{width:min(570px,100%);background:linear-gradient(145deg,#fff7e4,#eee2c4);color:#34483a;padding:clamp(25px,5vw,45px);border:2px solid #e6c77d;border-radius:22px;box-shadow:0 25px 100px #071a12aa;text-align:center;position:relative}.card:before{content:"";position:absolute;inset:8px;border:1px dashed #a9a06c;border-radius:15px;pointer-events:none}.eyebrow{font-size:9px;font-weight:800;letter-spacing:3px;color:#6c8c5e}.card h1{font:800 clamp(44px,9vw,76px)/.9 Fraunces;margin:15px 0 8px;color:#315d42}.card h1 span{color:#d69c43}.subtitle{font-size:10px;letter-spacing:2px;color:#a27b43;font-weight:800}.card p{font-size:12px;line-height:1.8;color:#5b6a55;max-width:440px;margin:18px auto}
+button{border:0;border-radius:24px;padding:13px 22px;background:linear-gradient(135deg,#54885b,#2e6849);color:#fff5d8;font:800 10px 'DM Sans';letter-spacing:1.5px;cursor:pointer;box-shadow:0 5px 0 #244c38,0 10px 22px #315d4233;transition:.15s}button:hover{transform:translateY(-2px);filter:brightness(1.08)}button:active{transform:translateY(3px);box-shadow:0 2px 0 #244c38}
+.tiny{font-size:9px;color:#89916c;margin-top:17px}.hidden{display:none!important}
+.panel{position:absolute;z-index:4;left:50%;top:50%;transform:translate(-50%,-50%);width:min(440px,calc(100% - 28px));background:#fff6e6;color:#34483a;border:2px solid #d9bd78;border-radius:17px;padding:22px;box-shadow:0 20px 80px #071a12bb}.panel h2{font:700 25px Fraunces;margin:0 0 6px}.panel p{font-size:11px;line-height:1.7;color:#64735e}.panel .row{display:flex;justify-content:space-between;align-items:center;gap:10px;border-bottom:1px solid #dfd6bd;padding:9px 0;font-size:11px}.panel button{margin-top:12px}
+.toast{position:absolute;top:75px;left:50%;transform:translateX(-50%);padding:9px 15px;background:#fff4d9;color:#34523c;border:1px solid #d5b66d;border-radius:22px;font-size:10px;font-weight:800;opacity:0;transition:.2s;pointer-events:none;z-index:6;white-space:nowrap}
+@media(max-width:650px){.hud{padding:10px}.logo{font-size:17px}.logo small{font-size:7px}.chip{min-width:58px;padding:6px 7px}.chip label{font-size:7px}.chip strong{font-size:13px}.side{top:86px;right:10px;width:125px}.meter{padding:6px}.meterhead{font-size:7px}#minimap{top:86px;left:10px;width:112px;height:85px}.bottom{align-items:flex-end}.quest{max-width:220px;padding:8px 10px}.quest div{font-size:9px}.controls{font-size:7px}.actionhint{bottom:92px}}
+</style></head>
+<body>
+<canvas id="world"></canvas>
+<div class="hud">
+ <div class="top"><div class="logo">WHISKERWOOD<small>A CAT'S LITTLE OPEN WORLD</small></div><div class="topright">
+  <div class="chip"><label>FISH TREATS</label><strong id="coins">0</strong></div><div class="chip"><label>PAW LEVEL</label><strong id="level">01</strong></div><div class="chip"><label>TIME</label><strong id="clock">08:00 AM</strong></div>
+ </div></div>
+ <canvas id="minimap" width="296" height="224"></canvas>
+ <div class="side">
+  <div class="meter"><div class="meterhead"><span>HUNGER</span><span id="hungerN">82%</span></div><div class="bar"><span id="hungerB" style="background:#e8b95f;width:82%"></span></div></div>
+  <div class="meter"><div class="meterhead"><span>ENERGY</span><span id="energyN">90%</span></div><div class="bar"><span id="energyB" style="background:#83d5a0;width:90%"></span></div></div>
+  <div class="meter"><div class="meterhead"><span>HAPPINESS</span><span id="happyN">76%</span></div><div class="bar"><span id="happyB" style="background:#df9bcb;width:76%"></span></div></div>
+  <div class="mood" id="mood">Feeling curious ✦</div>
+ </div>
+ <div class="bottom"><div class="quest"><label id="questTitle">TODAY'S LITTLE ADVENTURE</label><div id="questText">Find the village square and say hello to the locals.</div></div><div class="controls"><span class="key">WASD</span> MOVE <span class="key">SHIFT</span> SPRINT<br><span class="key">E</span> INTERACT <span class="key">SPACE</span> MEOW / PLAY</div></div>
+</div>
+<div class="actionhint" id="hint"></div><div class="toast" id="toast"></div>
+<div class="menu" id="start"><div class="card"><div class="eyebrow">A SOFT LITTLE ADVENTURE</div><h1>WHISKER<span>WOOD</span></h1><div class="subtitle">YOUR PAWS. YOUR WORLD. YOUR STORY.</div><p>Wake up in a sunny woodland village, explore gardens and hidden trails, meet friendly animals, collect shiny treasures, decorate your cozy home and live life at your own pace.</p><button id="begin">START YOUR ADVENTURE ↗</button><div class="tiny">OPEN WORLD · EXPLORATION · FRIENDS · COLLECTING · COZY LIFE SIM</div></div></div>
+<div class="panel hidden" id="interact"><h2 id="interTitle">A friendly hello</h2><p id="interText">A character has something to say.</p><div id="interOptions"></div><button id="closePanel">CLOSE</button></div>
+<div class="menu hidden" id="gameover"><div class="card"><div class="eyebrow">A CATNAP WAS NEEDED</div><h1>GOOD <span>NAP!</span></h1><p>You curled up for a little rest. Your adventure is still waiting whenever you are ready.</p><button id="wake">WAKE UP ↗</button></div></div>
+<script src="game.js"></script>
+</body></html>

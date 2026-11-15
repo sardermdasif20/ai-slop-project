@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ECHOES OF THE DEEP — Abyssal Salvage</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--cyan:#75f4e6;--blue:#399fbd;--ink:#06121d;--panel:#0b1d2a;--muted:#7e9aa7;--white:#e7f6f4}
+*{box-sizing:border-box}body{margin:0;background:#030b12;color:var(--white);font-family:'DM Mono',monospace;overflow:hidden}
+#game{display:block;width:100vw;height:100vh;cursor:crosshair}
+.hud{position:fixed;inset:0;pointer-events:none;padding:22px 26px;display:flex;flex-direction:column;justify-content:space-between}
+.top{display:flex;justify-content:space-between;align-items:flex-start;gap:20px}
+.brand{font:800 30px 'Barlow Condensed';letter-spacing:3px;line-height:.9;text-shadow:0 0 22px #52d9d566}
+.brand small{display:block;font:10px 'DM Mono';letter-spacing:3px;color:var(--cyan);margin-top:8px}
+.stats{display:flex;gap:10px}.stat{background:#071722d9;border:1px solid #3a718066;padding:10px 14px;min-width:110px;backdrop-filter:blur(8px)}
+.stat label{display:block;color:var(--muted);font-size:9px;letter-spacing:1.5px;margin-bottom:6px}.stat strong{font-size:17px;color:var(--cyan)}
+.bottom{display:flex;justify-content:space-between;align-items:flex-end;gap:20px}
+.objective{max-width:380px;background:linear-gradient(90deg,#0b1d2add,transparent);padding:12px 18px;border-left:2px solid var(--cyan)}
+.objective label{color:var(--cyan);font-size:9px;letter-spacing:2px}.objective div{font-size:12px;line-height:1.6;margin-top:5px}
+.controls{font-size:10px;line-height:1.9;color:#a4bac2;text-align:right}.key{display:inline-block;border:1px solid #5c8b98;padding:0 5px;color:#e7ffff;margin-left:4px}
+.overlay{position:fixed;inset:0;display:grid;place-items:center;background:radial-gradient(ellipse at center,#071d2be8,#02080ef5);z-index:5}
+.card{width:min(600px,calc(100vw - 36px));padding:38px;background:linear-gradient(145deg,#0e2735f2,#07131df5);border:1px solid #4ab5b077;box-shadow:0 25px 100px #000a;position:relative}
+.card:before{content:"";position:absolute;inset:7px;border:1px solid #7ceee51c;pointer-events:none}
+.kicker{color:var(--cyan);font-size:10px;letter-spacing:3px}
+h1{font:800 clamp(48px,9vw,76px)/.82 'Barlow Condensed';letter-spacing:1px;margin:18px 0 16px}
+h1 span{color:var(--cyan);text-shadow:0 0 28px #63e7d966}
+.desc{color:#a7bdc5;font-size:12px;line-height:1.9;max-width:440px}
+button{margin-top:24px;background:var(--cyan);color:#05202a;border:0;padding:14px 24px;font:700 12px 'DM Mono';letter-spacing:2px;cursor:pointer;transition:.2s}
+button:hover{background:#d4fff9;transform:translateY(-2px);box-shadow:0 8px 30px #75f4e655}
+.hidden{display:none!important}.notice{position:fixed;left:50%;top:22%;transform:translateX(-50%);color:var(--cyan);font-size:11px;letter-spacing:2px;text-shadow:0 0 12px #75f4e6;pointer-events:none;opacity:0;transition:opacity .2s}
+@media(max-width:650px){.hud{padding:14px}.brand{font-size:23px}.stats{gap:5px}.stat{min-width:74px;padding:8px}.stat strong{font-size:13px}.stat label{font-size:8px}.controls{font-size:8px}.objective{max-width:230px}.objective div{font-size:10px}}
+</style></head>
+<body>
+<canvas id="game"></canvas>
+<div class="hud">
+ <div class="top">
+  <div class="brand">ECHOES <span style="color:var(--cyan)">/</span> OF THE DEEP<small>ABYSSAL SALVAGE DIVISION · DIVE 07</small></div>
+  <div class="stats">
+   <div class="stat"><label>OXYGEN</label><strong id="oxygen">100%</strong></div>
+   <div class="stat"><label>SALVAGE</label><strong id="salvage">0 / 5</strong></div>
+   <div class="stat"><label>DEPTH</label><strong id="depth">240 M</strong></div>
+  </div>
+ </div>
+ <div class="bottom">
+  <div class="objective"><label>MISSION // RECOVER THE BLACK BOX</label><div id="mission">Find 5 data cores hidden in the wreck. Keep your sonar active. Something is moving out there.</div></div>
+  <div class="controls"><span class="key">WASD</span> MOVE &nbsp; <span class="key">SPACE</span> SONAR PULSE<br><span class="key">SHIFT</span> BOOST &nbsp; <span class="key">E</span> COLLECT / EXTRACT</div>
+ </div>
+</div>
+<div class="notice" id="notice">SONAR PULSE</div>
+<div class="overlay" id="intro"><div class="card">
+ <div class="kicker">DEEP OCEAN RESEARCH AUTHORITY // CLASSIFIED</div>
+ <h1>THE SEA<br>REMEMBERS<span>.</span></h1>
+ <p class="desc">Your submersible is the last signal from the Asterion wreck. Recover five black-box data cores and return to the extraction beacon. Your sonar reveals the darkness — but every pulse tells the thing below exactly where you are.</p>
+ <p class="desc">Manage oxygen. Avoid the leviathan. Don't stay in the dark too long.</p>
+ <button id="start">BEGIN DIVE ↗</button>
+</div></div>
+<div class="overlay hidden" id="end"><div class="card">
+ <div class="kicker" id="endtag">DIVE REPORT // COMPLETE</div><h1 id="endtitle">MISSION<br><span>COMPLETE.</span></h1>
+ <p class="desc" id="enddesc">All data cores recovered.</p><button id="again">DIVE AGAIN ↗</button>
+</div></div>
+<script src="game.js"></script>
+</body></html>

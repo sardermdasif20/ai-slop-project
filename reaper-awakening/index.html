@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#080b18">
+<title>REAPER: AWAKENING — Spirit Duel</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800;900&family=Rajdhani:wght@500;600;700&family=Space+Mono:wght@400;700&display=swap');
+:root{--cyan:#79e8ff;--violet:#c28bff;--red:#ff5a76;--gold:#ffd77b;--ink:#080b18}
+*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#070a14;color:#eef5ff;font-family:Rajdhani,sans-serif}
+#game{display:block;width:100vw;height:100vh;touch-action:none}
+.hud{position:fixed;inset:0;pointer-events:none;padding:clamp(12px,2.2vw,28px);display:flex;flex-direction:column;justify-content:space-between}
+.top{display:flex;justify-content:space-between;gap:18px;align-items:flex-start}
+.brand{font:900 clamp(20px,3vw,34px)/.9 'Barlow Condensed';letter-spacing:.13em;text-shadow:0 0 22px #79e8ff44}
+.brand span{color:var(--cyan)}.sub{font:10px 'Space Mono';letter-spacing:.17em;color:#9ba9c1;margin-top:7px}
+.hudblock{width:min(330px,40vw)}.hudname{font:700 17px 'Barlow Condensed';letter-spacing:.12em;margin-bottom:5px}
+.boss{text-align:right;margin-left:auto}
+.bar{height:10px;background:#1a2338;border:1px solid #53607c;padding:2px;transform:skewX(-13deg)}
+.bar i{display:block;height:100%;width:100%;background:linear-gradient(90deg,#ff496c,#ff9d79);box-shadow:0 0 13px #ff496c}
+.playerbar i{background:linear-gradient(90deg,#53caff,#b0f5ff);box-shadow:0 0 13px #53caff}
+.spbar{margin-top:5px;height:5px}.spbar i{background:linear-gradient(90deg,#9276ff,#e1aaff)}
+.stats{display:flex;justify-content:space-between;color:#9ba9c1;font:9px 'Space Mono';margin-top:5px}
+.bottom{display:flex;justify-content:space-between;align-items:end;gap:12px}
+.controls{font:10px/1.8 'Space Mono';color:#a5b1c9;background:#0b1020c9;border:1px solid #28334d;padding:9px 13px}
+kbd{border:1px solid #63718c;border-bottom-width:2px;border-radius:3px;padding:1px 5px;color:white}
+.skills{display:flex;gap:9px}
+.skill{width:54px;height:54px;border:1px solid #60729a;background:linear-gradient(145deg,#18233e,#090f20);display:grid;place-items:center;position:relative;box-shadow:0 0 20px #0008}
+.skill b{font:900 22px 'Barlow Condensed';color:var(--cyan);text-shadow:0 0 12px var(--cyan)}
+.skill small{position:absolute;bottom:-16px;font:9px 'Space Mono';color:#aab8d0;white-space:nowrap}
+.overlay{position:fixed;inset:0;display:grid;place-items:center;padding:18px;background:linear-gradient(90deg,#050816eF,#080b18b5 65%,#050816eF);backdrop-filter:blur(6px);transition:opacity .25s}
+.overlay.hide{opacity:0;pointer-events:none}
+.panel{width:min(660px,100%);padding:clamp(24px,5vw,50px);background:linear-gradient(145deg,#131d35f5,#090f20f5);border:1px solid #394a6b;box-shadow:0 25px 100px #000b;position:relative}
+.panel:before{content:"";position:absolute;left:-1px;top:25px;width:3px;height:80px;background:var(--cyan);box-shadow:0 0 20px var(--cyan)}
+.eyebrow{font:10px 'Space Mono';letter-spacing:.24em;color:var(--cyan);margin-bottom:17px}
+h1{font:900 clamp(48px,10vw,92px)/.8 'Barlow Condensed';letter-spacing:.02em;margin:0;text-transform:uppercase}
+h1 em{font-style:normal;color:var(--cyan)}
+.subtitle{font:700 16px 'Barlow Condensed';letter-spacing:.22em;color:#c4cee2;margin:19px 0 13px}
+.desc{font-size:16px;line-height:1.5;color:#a9b6ce;max-width:500px}
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:24px}
+button{font:700 12px 'Space Mono';letter-spacing:.12em;padding:14px 20px;border:1px solid var(--cyan);background:var(--cyan);color:#06101b;cursor:pointer}
+button.alt{background:transparent;color:#eaf4ff;border-color:#536481}
+button:hover{filter:brightness(1.12);transform:translateY(-1px)}
+.meta{display:flex;gap:18px;flex-wrap:wrap;border-top:1px solid #2d3b59;margin-top:23px;padding-top:15px;font:9px 'Space Mono';color:#8292ad}
+.toast{position:fixed;top:22%;left:50%;transform:translate(-50%,-10px);font:700 15px 'Space Mono';letter-spacing:.18em;color:#d8f7ff;text-shadow:0 0 18px #79e8ff;opacity:0;transition:.2s;pointer-events:none;white-space:nowrap}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+@media(max-width:650px){.hud{padding:10px}.hudname{font-size:13px}.hudblock{width:42vw}.bar{height:8px}.controls{font-size:8px;padding:6px}.skill{width:40px;height:40px}.skill b{font-size:18px}.sub{font-size:8px}}
+</style>
+</head>
+<body>
+<canvas id="game"></canvas>
+<div class="hud">
+ <div class="top">
+  <div class="hudblock">
+   <div class="brand">REAPER <span>// AWAKENING</span></div><div class="sub">SOULBOUND CHRONICLES · CHAPTER 01</div>
+   <div style="margin-top:15px" class="hudname">KAI REN // SOUL-BLADE</div>
+   <div class="bar playerbar"><i id="hp"></i></div><div class="bar spbar"><i id="sp"></i></div>
+   <div class="stats"><span id="hptext">VITALITY 100 / 100</span><span id="sptext">SPIRIT 100</span></div>
+  </div>
+  <div class="hudblock boss">
+   <div class="hudname" id="bossname">THE HOLLOW KING</div>
+   <div class="bar"><i id="bosshp"></i></div>
+   <div class="stats"><span>ANOMALY CLASS: S</span><span id="bosstext">100%</span></div>
+  </div>
+ </div>
+ <div class="bottom">
+  <div class="controls"><kbd>A</kbd><kbd>D</kbd> MOVE &nbsp; <kbd>W</kbd> JUMP<br><kbd>J</kbd> SLASH &nbsp; <kbd>K</kbd> SPIRIT WAVE<br><kbd>SHIFT</kbd> FLASH STEP &nbsp; <kbd>P</kbd> PAUSE</div>
+  <div class="skills"><div class="skill"><b>J</b><small>ZEN CUT</small></div><div class="skill"><b>K</b><small>SOUL WAVE</small></div><div class="skill"><b>⇧</b><small>FLASH STEP</small></div></div>
+ </div>
+</div>
+<div class="toast" id="toast">SPIRIT PRESSURE RISING</div>
+<div class="overlay" id="overlay"><div class="panel">
+ <div class="eyebrow">SOULBOUND CHRONICLES // CLASSIFIED RECORD 001</div>
+ <h1>REAPER<br><em>AWAKENING</em></h1>
+ <div class="subtitle">YOUR SOUL IS THE LAST LINE OF DEFENCE.</div>
+ <p class="desc">The veil between worlds has fractured. A Hollow monarch has crossed into the human realm. Draw your soul-blade, master your spirit pressure, and survive the first encounter.</p>
+ <div class="actions"><button id="main">BEGIN AWAKENING ↗</button><button class="alt" id="manual">COMBAT MANUAL</button></div>
+ <div class="meta"><span>ORIGINAL FAN-INSPIRED CONCEPT</span><span>2D ACTION BOSS DUEL</span><span>NO INSTALLATION REQUIRED</span></div>
+</div></div>
+<script>
+(()=>{
+const c=document.querySelector('#game'),x=c.getContext('2d'),$=id=>document.getElementById(id);
+let W=innerWidth,H=innerHeight,D=devicePixelRatio||1;
+function resize(){W=innerWidth;H=innerHeight;c.width=W*D;c.height=H*D;x.setTransform(D,0,0,D,0,0)}addEventListener('resize',resize);resize();
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v)),rand=(a,b)=>a+Math.random()*(b-a),TAU=Math.PI*2;
+let mode='menu',keys={},mouseDown=false,player,boss,shots=[],enemyShots=[],particles=[],rings=[],tick=0,last=0,shake=0,flash=0,slashCD=0,waveCD=0,dashCD=0,score=0,high=+(localStorage.reaperHigh||0);
+const floorY=()=>H*.79;
+function reset(){player={x:W*.22,y:floorY(),vx:0,vy:0,hp:100,sp:100,face:1,ground:true,inv:0,attack:0,attackCD:0,dash:0};boss={x:W*.76,y:floorY(),hp:1000,max:1000,phase:0,timer:1.4,attack:'idle',hit:0};shots=[];enemyShots=[];particles=[];rings=[];score=0;shake=0;slashCD=0;waveCD=0;dashCD=0;hud()}
+function hud(){$('hp').style.width=player.hp+'%';$('sp').style.width=player.sp+'%';$('hptext').textContent=`VITALITY ${Math.ceil(player.hp)} / 100`;$('sptext').textContent=`SPIRIT ${Math.floor(player.sp)}`;$('bosshp').style.width=(boss.hp/boss.max*100)+'%';$('bosstext').textContent=Math.ceil(boss.hp/boss.max*100)+'%'}
+function toast(t){$('toast').textContent=t;$('toast').classList.add('show');setTimeout(()=>$('toast').classList.remove('show'),1200)}
+function burst(px,py,color,n=14,power=180){for(let i=0;i<n;i++){let a=rand(0,TAU),v=rand(power*.15,power);particles.push({x:px,y:py,vx:Math.cos(a)*v,vy:Math.sin(a)*v,life:rand(.2,.7),max:.7,color,r:rand(1,4)})}}
+function ring(px,py,color){rings.push({x:px,y:py,r:8,life:.45,color})}
+function damageBoss(amount){boss.hp=Math.max(0,boss.hp-amount);boss.hit=.13;score+=amount;shake=Math.max(shake,3);if(boss.hp<=0)win()}
+function damagePlayer(amount){if(player.inv>0||mode!=='play')return;player.hp-=amount;player.inv=.75;shake=9;flash=.18;burst(player.x,player.y,'#ff5278',18,230);if(player.hp<=0){player.hp=0;gameOver()}hud()}
+function slash(){if(player.attackCD>0)return;player.attack=.19;player.attackCD=.34;let hit=Math.abs(boss.x-player.x)<145&&Math.abs(boss.y-player.y)<100&&player.face===(boss.x>player.x?1:-1);burst(player.x+player.face*55,player.y-35,'#b8f4ff',9,120);if(hit){damageBoss(46);burst(boss.x-20,boss.y-55,'#c89aff',12,170)}}
+function wave(){if(player.sp<25||waveCD>0)return;player.sp-=25;waveCD=.75;shots.push({x:player.x+player.face*28,y:player.y-45,vx:player.face*610,life:1.5,r:18});burst(player.x+player.face*30,player.y-45,'#7de9ff',18,210);hud()}
+function dash(){if(dashCD>0)return;player.dash=.18;player.inv=.25;dashCD=.9;player.x+=player.face*145;player.x=clamp(player.x,35,W-35);burst(player.x-player.face*30,player.y-30,'#a7edff',14,160)}
+function bossAttack(){let distance=Math.abs(player.x-boss.x);if(boss.hp<boss.max*.48)boss.phase=1;
+if(distance>230){boss.attack='charge';boss.timer=.8}else if(Math.random()<.5){boss.attack='slam';boss.timer=.9}else{boss.attack='burst';boss.timer=1.1}}
+function update(dt){tick+=dt;if(mode!=='play')return;
+player.attackCD-=dt;player.inv-=dt;player.dash-=dt;slashCD-=dt;waveCD-=dt;dashCD-=dt;player.sp=Math.min(100,player.sp+dt*5);
+let move=(keys.d?1:0)-(keys.a?1:0);if(move)player.face=move;let speed=player.dash>0?950:330;
+player.vx=move*speed;player.x=clamp(player.x+player.vx*dt,28,W-28);
+if(keys.w&&player.ground){player.vy=-590;player.ground=false}
+player.vy+=1450*dt;player.y+=player.vy*dt;if(player.y>=floorY()){player.y=floorY();player.vy=0;player.ground=true}
+if(keys.j){keys.j=false;slash()}if(keys.k){keys.k=false;wave()}if(keys.shift){keys.shift=false;dash()}
+if(boss.attack==='idle'){boss.timer-=dt;if(boss.timer<=0)bossAttack()}
+else{boss.timer-=dt;if(boss.attack==='charge'){boss.x+=(player.x>boss.x?1:-1)*260*dt;if(boss.timer<=0){if(Math.abs(player.x-boss.x)<75)damagePlayer(22);boss.attack='idle';boss.timer=1.1}}
+else if(boss.attack==='slam'){if(boss.timer<.27&&boss.timer+dt>=.27){ring(boss.x,floorY()-5,'#c78bff');shake=8;if(Math.abs(player.x-boss.x)<210&&player.ground)damagePlayer(20)}if(boss.timer<=0){boss.attack='idle';boss.timer=rand(.8,1.4)}}
+else if(boss.attack==='burst'){if(boss.timer<.6&&boss.timer+dt>=.6){for(let i=-1;i<=1;i++)enemyShots.push({x:boss.x-25,y:boss.y-80,vx:-330,vy:i*105-15,life:1.8,r:10});burst(boss.x,boss.y-80,'#c78bff',18,140)}if(boss.timer<=0){boss.attack='idle';boss.timer=rand(.8,1.5)}}}
+boss.hit=Math.max(0,boss.hit-dt);
+shots.forEach(s=>{s.x+=s.vx*dt;s.life-=dt;if(Math.abs(s.x-boss.x)<bossR()+s.r&&Math.abs(s.y-(boss.y-50))<65){damageBoss(80);burst(s.x,s.y,'#8feeff',18,210);s.life=0}});shots=shots.filter(s=>s.life>0&&s.x>-40&&s.x<W+40);
+enemyShots.forEach(s=>{s.x+=s.vx*dt;s.y+=s.vy*dt;s.life-=dt;if(Math.hypot(s.x-player.x,s.y-(player.y-40))<s.r+22){damagePlayer(13);s.life=0}});enemyShots=enemyShots.filter(s=>s.life>0);
+particles.forEach(p=>{p.x+=p.vx*dt;p.y+=p.vy*dt;p.vx*=Math.pow(.1,dt);p.vy*=Math.pow(.1,dt);p.life-=dt});particles=particles.filter(p=>p.life>0);
+rings.forEach(r=>{r.r+=450*dt;r.life-=dt});rings=rings.filter(r=>r.life>0);shake=Math.max(0,shake-26*dt);flash=Math.max(0,flash-dt);hud()}
+function bossR(){return boss.phase?58:50}
+function win(){mode='win';high=Math.max(high,score);localStorage.reaperHigh=high;show('THE KING FALLS','The Hollow monarch dissolves into a storm of spirit ash. The breach is sealed... for now.','PLAY AGAIN ↗')}
+function gameOver(){mode='over';show('SOUL EXTINGUISHED','Your spirit pressure fades. The Hollow King remains. Regroup and return stronger.','RETRY ↗')}
+function show(title,desc,btn){$('overlay').classList.remove('hide');$('overlay').querySelector('h1').innerHTML=title.replace(' ','<br><em>');$('overlay').querySelector('.subtitle').textContent=desc;$('overlay').querySelector('.desc').textContent=`FINAL DAMAGE ${Math.floor(score).toLocaleString()} // BEST ${Math.floor(high).toLocaleString()}`;$('main').textContent=btn;$('manual').style.display='none'}
+function pause(){if(mode==='play'){mode='pause';show('BATTLE PAUSED','The spirit realm waits.','RESUME ↗')}else if(mode==='pause'){mode='play';$('overlay').classList.add('hide')}}
+addEventListener('keydown',e=>{let k=e.key.toLowerCase();keys[k]=true;if(k==='p')pause();if([' ','arrowleft','arrowright','arrowup','arrowdown'].includes(k))e.preventDefault()});
+addEventListener('keyup',e=>keys[e.key.toLowerCase()]=false);
+$('main').onclick=()=>{if(mode==='pause'){mode='play';$('overlay').classList.add('hide')}else{reset();mode='play';$('overlay').classList.add('hide');toast('SPIRIT PRESSURE RISING')}};
+$('manual').onclick=()=>{$('overlay').querySelector('h1').innerHTML='COMBAT<br><em>MANUAL</em>';$('overlay').querySelector('.subtitle').textContent='MASTER THE THREE PILLARS';$('overlay').querySelector('.desc').textContent='A / D to move. W to jump over ground slams. J for a close-range soul-blade cut. K to spend spirit energy on a ranged wave. SHIFT to flash-step through danger. Watch the boss tell animations before attacking.';$('main').textContent='I AM READY';$('manual').style.display='none'};
+function drawBackground(){let g=x.createLinearGradient(0,0,0,H);g.addColorStop(0,'#090e25');g.addColorStop(.65,'#171b39');g.addColorStop(1,'#090d1a');x.fillStyle=g;x.fillRect(0,0,W,H);
+ // moon and distant skyline
+ x.fillStyle='#d6e9ff';x.globalAlpha=.8;x.beginPath();x.arc(W*.72,H*.19,Math.min(W,H)*.105,0,TAU);x.fill();x.globalAlpha=1;
+ x.fillStyle='#11172c';for(let i=0;i<16;i++){let bx=i*W/12-(W/10),bh=randSeed(i)*H*.25;x.fillRect(bx,floorY()-bh,W/17,bh)}
+ x.strokeStyle='#38446a';x.globalAlpha=.5;x.lineWidth=2;x.beginPath();x.moveTo(0,floorY());x.lineTo(W,floorY());x.stroke();x.globalAlpha=1;
+ // floor reflections
+ x.fillStyle='#121a31';x.fillRect(0,floorY()+2,W,H-floorY());for(let i=0;i<25;i++){let xx=(i*137+tick*25)%W;x.strokeStyle=i%2?'#55648c':'#b0d9ff';x.globalAlpha=.07;x.beginPath();x.moveTo(xx,floorY()+randSeed(i)*20);x.lineTo(xx+randSeed(i+7)*60,floorY()+randSeed(i+2)*100);x.stroke()}x.globalAlpha=1}
+function randSeed(n){let v=Math.sin(n*127.1+311.7)*43758.5453;return v-Math.floor(v)}
+function drawFighter(p,enemy=false){let px=p.x,py=p.y,face=enemy?-1:p.face;
+ x.save();x.translate(px,py);x.scale(face,1);
+ if(enemy){let pulse=1+Math.sin(tick*5)*.035;x.scale(pulse,pulse)}
+ // shadow
+ x.fillStyle='#03050b';x.globalAlpha=.55;x.beginPath();x.ellipse(0,0,42,9,0,0,TAU);x.fill();x.globalAlpha=1;
+ // robe/body silhouette
+ x.shadowColor=enemy?'#b56bff':'#78dfff';x.shadowBlur=enemy?24:13;
+ x.fillStyle=enemy?(boss.hit?'#fff':'#302044'):'#e8efff';
+ x.beginPath();x.moveTo(-15,-94);x.lineTo(14,-94);x.lineTo(29,-28);x.lineTo(47,-3);x.lineTo(8,-10);x.lineTo(0,-35);x.lineTo(-10,-7);x.lineTo(-43,-1);x.lineTo(-27,-37);x.closePath();x.fill();x.shadowBlur=0;
+ // inner uniform
+ x.fillStyle=enemy?'#0d1023':'#10182a';x.beginPath();x.moveTo(-7,-89);x.lineTo(7,-89);x.lineTo(13,-32);x.lineTo(0,-19);x.lineTo(-12,-34);x.closePath();x.fill();
+ // head
+ x.fillStyle=enemy?'#c6b9e2':'#e9c4ad';x.beginPath();x.ellipse(0,-108,15,18,0,0,TAU);x.fill();
+ // hair
+ x.fillStyle=enemy?'#eeeaff':'#f0a45e';x.beginPath();x.moveTo(-15,-113);x.lineTo(-22,-132);x.lineTo(-7,-124);x.lineTo(-2,-141);x.lineTo(5,-124);x.lineTo(17,-135);x.lineTo(15,-111);x.closePath();x.fill();
+ // sword
+ x.strokeStyle='#c9f7ff';x.lineWidth=4;x.beginPath();x.moveTo(12,-57);x.lineTo(70,-120);x.stroke();x.strokeStyle='#586c8b';x.lineWidth=7;x.beginPath();x.moveTo(8,-60);x.lineTo(19,-49);x.stroke();
+ // eyes
+ x.fillStyle='#182035';x.fillRect(5,-111,4,2);
+ x.restore()}
+function draw(){x.save();if(shake)x.translate(rand(-shake,shake),rand(-shake,shake));drawBackground();
+ // aura rings
+ x.globalAlpha=.17+Math.sin(tick*3)*.06;x.strokeStyle='#bc88ff';x.lineWidth=3;x.beginPath();x.ellipse(boss.x,boss.y-52,75+Math.sin(tick*2)*8,115,0,0,TAU);x.stroke();x.globalAlpha=1;
+ // boss attack telegraph
+ if(boss.attack==='slam'||boss.attack==='charge'){x.fillStyle='#ff5278';x.globalAlpha=.13+Math.sin(tick*25)*.08;x.fillRect(boss.attack==='charge'?Math.min(player.x,boss.x)-30:boss.x-190,floorY()-4,boss.attack==='charge'?Math.abs(player.x-boss.x)+60:380,5);x.globalAlpha=1}
+ drawFighter(player);drawFighter(boss,true);
+ shots.forEach(s=>{x.shadowColor='#7de9ff';x.shadowBlur=22;x.fillStyle='#b8f5ff';x.beginPath();x.ellipse(s.x,s.y,26,10,0,0,TAU);x.fill();x.shadowBlur=0});
+ enemyShots.forEach(s=>{x.shadowColor='#c28bff';x.shadowBlur=20;x.fillStyle='#d9a8ff';x.beginPath();x.arc(s.x,s.y,s.r,0,TAU);x.fill();x.shadowBlur=0});
+ if(player.attack>0){x.save();x.translate(player.x+player.face*28,player.y-55);x.scale(player.face,1);x.strokeStyle='#c7f7ff';x.shadowColor='#75e8ff';x.shadowBlur=28;x.lineWidth=9;x.beginPath();x.arc(0,0,76,-1.05,.85);x.stroke();x.restore();player.attack-=.016}
+ particles.forEach(p=>{x.globalAlpha=Math.max(0,p.life/p.max);x.fillStyle=p.color;x.shadowColor=p.color;x.shadowBlur=10;x.beginPath();x.arc(p.x,p.y,p.r,0,TAU);x.fill()});x.globalAlpha=1;x.shadowBlur=0;
+ rings.forEach(r=>{x.globalAlpha=r.life/.45;x.strokeStyle=r.color;x.lineWidth=5;x.beginPath();x.ellipse(r.x,floorY(),r.r,r.r*.17,0,0,TAU);x.stroke()});x.globalAlpha=1;
+ if(player.inv>0&&Math.floor(tick*20)%2===0){x.fillStyle='#b9f5ff';x.globalAlpha=.14;x.beginPath();x.arc(player.x,player.y-60,55,0,TAU);x.fill();x.globalAlpha=1}
+ x.restore();if(flash>0){x.fillStyle='#ff4d76';x.globalAlpha=flash*1.8;x.fillRect(0,0,W,H);x.globalAlpha=1}}
+function loop(now){let dt=Math.min((now-last)/1000||0,.033);last=now;update(dt);draw();requestAnimationFrame(loop)}reset();requestAnimationFrame(loop);
+})();
+</script>
+</body></html>

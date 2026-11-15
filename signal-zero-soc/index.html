@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SIGNAL ZERO — SOC Operations</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#080d14;--panel:#0e1722;--panel2:#111e2b;--line:#243748;--muted:#7e93a7;--text:#dce8f1;--cyan:#56d8e8;--green:#70e0b1;--amber:#f4c36b;--red:#ff7185;--blue:#7ea9ff}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 50% -20%,#183348 0,#0a121d 48%,#070b11 100%);color:var(--text);font-family:'Space Grotesk',sans-serif;min-height:100vh}
+button{font:600 11px 'IBM Plex Mono';letter-spacing:.5px;border:1px solid var(--line);background:#152637;color:var(--text);padding:10px 13px;cursor:pointer;transition:.15s}
+button:hover{border-color:var(--cyan);color:#fff;background:#1a3546}button:disabled{opacity:.35;cursor:not-allowed}
+.topbar{height:62px;border-bottom:1px solid var(--line);background:#080f18eF;display:flex;align-items:center;justify-content:space-between;padding:0 22px;position:sticky;top:0;z-index:3;backdrop-filter:blur(12px)}
+.brand{display:flex;align-items:center;gap:12px;font-weight:700;letter-spacing:2px;font-size:14px}.mark{width:28px;height:28px;border:1px solid var(--cyan);display:grid;place-items:center;color:var(--cyan);font:600 14px 'IBM Plex Mono';box-shadow:0 0 18px #56d8e822}
+.brand small{display:block;font:9px 'IBM Plex Mono';color:var(--muted);letter-spacing:1.3px;margin-top:3px}
+.topright{display:flex;align-items:center;gap:18px;font:10px 'IBM Plex Mono';color:var(--muted)}.live{color:var(--green)}.dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--green);margin-right:6px;box-shadow:0 0 9px var(--green)}
+.wrap{max-width:1440px;margin:auto;padding:20px 22px 30px}
+.heading{display:flex;align-items:flex-end;justify-content:space-between;margin:4px 0 17px;gap:15px}.eyebrow{font:10px 'IBM Plex Mono';letter-spacing:2px;color:var(--cyan)}h1{font-size:25px;margin:5px 0 0;letter-spacing:-.8px}.sub{font:11px 'IBM Plex Mono';color:var(--muted);margin-top:5px}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:13px}.stat{background:linear-gradient(135deg,#111f2c,#0c1621);border:1px solid var(--line);padding:12px 14px;position:relative;overflow:hidden}.stat:after{content:"";position:absolute;right:-20px;top:-24px;width:70px;height:70px;border:1px solid #56d8e81c;border-radius:50%}.stat label{font:9px 'IBM Plex Mono';color:var(--muted);letter-spacing:1.4px}.stat strong{display:block;font:600 21px 'IBM Plex Mono';margin-top:5px}.stat small{font:9px 'IBM Plex Mono';color:var(--muted)}
+.layout{display:grid;grid-template-columns: minmax(0,1.7fr) minmax(300px,1fr);gap:13px;align-items:start}.panel{background:linear-gradient(145deg,#101b27,#0b141e);border:1px solid var(--line);margin-bottom:13px;min-width:0}.ph{display:flex;justify-content:space-between;align-items:center;padding:12px 14px;border-bottom:1px solid var(--line);gap:10px}.ph h2{font:600 11px 'IBM Plex Mono';letter-spacing:1.2px;margin:0}.tag{font:9px 'IBM Plex Mono';color:var(--muted);border:1px solid var(--line);padding:4px 7px}.body{padding:13px 14px}.alert{border-left:3px solid var(--amber);background:#30261955;padding:12px;margin-bottom:10px}.alert.critical{border-color:var(--red);background:#351b2855}.alert h3{margin:0 0 5px;font-size:13px}.alert p{margin:0;color:#9eafbd;font:10px/1.65 'IBM Plex Mono'}.alertmeta{display:flex;gap:8px;flex-wrap:wrap;margin-top:9px}.pill{font:9px 'IBM Plex Mono';padding:4px 6px;border:1px solid #465869;color:#aebdca}.pill.high{color:var(--red);border-color:#a74b5c}.pill.med{color:var(--amber);border-color:#8c7042}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:9px}.tool{padding:11px;border:1px solid var(--line);background:#0c1722;min-height:83px}.tool strong{font:600 10px 'IBM Plex Mono';display:block;margin-bottom:6px;color:#dceaf2}.tool p{font:10px/1.55 'IBM Plex Mono';color:var(--muted);margin:0 0 9px}.tool button{padding:7px 9px;font-size:9px}
+.tabs{display:flex;gap:5px}.tab{padding:7px 10px;font:9px 'IBM Plex Mono';color:var(--muted);background:transparent}.tab.active{color:var(--cyan);border-color:#367482;background:#112733}
+.log{font:10px/1.8 'IBM Plex Mono';color:#a8bac8;max-height:235px;overflow:auto}.logline{padding:3px 0;border-bottom:1px solid #1d2b38}.time{color:#668398;margin-right:9px}.bad{color:var(--red)}.good{color:var(--green)}.warn{color:var(--amber)}
+.meter{height:7px;background:#1b2b39;margin-top:8px;overflow:hidden}.meter span{display:block;height:100%;background:linear-gradient(90deg,var(--green),var(--amber),var(--red));width:0%;transition:width .3s}
+.objective{font-size:11px;line-height:1.7;color:#b7c8d4}.objective strong{color:#fff}.check{display:flex;gap:9px;padding:8px 0;border-bottom:1px solid #1d2b38;font:10px 'IBM Plex Mono';color:var(--muted)}.check.done{color:var(--green)}.check .box{width:14px;height:14px;border:1px solid #526b7e;display:grid;place-items:center;flex-shrink:0}.check.done .box{background:#174b40;border-color:var(--green)}
+.progress{height:3px;background:#1d2b38;margin-top:9px}.progress span{display:block;height:100%;background:var(--cyan);width:0%;transition:.3s}
+.actionrow{display:flex;gap:7px;flex-wrap:wrap;margin-top:12px}.primary{background:#123d4a;border-color:#347d8a;color:#9ff5f5}.danger{border-color:#874654;color:#ff9aaa;background:#321b25}.success{border-color:#36785f;color:#9cf1c9;background:#123329}
+.footer{display:flex;justify-content:space-between;gap:12px;color:#62798b;font:9px 'IBM Plex Mono';padding:4px 2px}
+.overlay{position:fixed;inset:0;z-index:10;background:#050b12eF;display:grid;place-items:center;padding:18px}.modal{width:min(590px,100%);border:1px solid #3b6477;background:linear-gradient(145deg,#142635,#0b141e);padding:27px;box-shadow:0 30px 100px #000b}.modal h2{font-size:28px;margin:8px 0}.modal p{color:#a8bac8;font:11px/1.8 'IBM Plex Mono'}.modal .kicker{color:var(--cyan);font:10px 'IBM Plex Mono';letter-spacing:2px}.modal button{margin-top:12px}.hidden{display:none!important}
+.toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:#132d39;border:1px solid #3a8390;color:#c8ffff;padding:10px 16px;font:10px 'IBM Plex Mono';z-index:20;opacity:0;transition:.2s;pointer-events:none}
+@media(max-width:900px){.layout{grid-template-columns:1fr}.stats{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:560px){.wrap{padding:14px 11px}.topbar{padding:0 12px}.topright{gap:8px;font-size:8px}.brand{font-size:11px}.heading{align-items:flex-start;flex-direction:column}.stats{gap:7px}.stat{padding:10px}.stat strong{font-size:17px}.grid2{grid-template-columns:1fr}.tabs{flex-wrap:wrap}}
+</style></head>
+<body>
+<header class="topbar">
+ <div class="brand"><div class="mark">Σ</div><div>SIGNAL ZERO<small>CYBER DEFENCE SIMULATOR / TRAINING ENVIRONMENT</small></div></div>
+ <div class="topright"><span><i class="dot"></i><span class="live">SOC ONLINE</span></span><span>SHIFT 03</span><span id="clock">00:00</span></div>
+</header>
+<main class="wrap">
+ <div class="heading"><div><div class="eyebrow">SECURITY OPERATIONS CENTER / INCIDENT RESPONSE</div><h1>Analyst Workstation</h1><div class="sub">Monitor the network. Investigate anomalies. Contain the incident.</div></div><div class="tag">SIMULATION BUILD 1.0.4</div></div>
+ <section class="stats">
+  <div class="stat"><label>THREAT LEVEL</label><strong id="threat" style="color:var(--amber)">ELEVATED</strong><small>Live incident severity</small></div>
+  <div class="stat"><label>NETWORK HEALTH</label><strong id="health" style="color:var(--green)">100%</strong><small>Protected services</small></div>
+  <div class="stat"><label>RESPONSE SCORE</label><strong id="score">0000</strong><small>Analyst performance</small></div>
+  <div class="stat"><label>TIME REMAINING</label><strong id="timer">04:00</strong><small>Until simulated impact</small></div>
+ </section>
+ <div class="layout">
+  <div>
+   <section class="panel">
+    <div class="ph"><h2>01 / ACTIVE INCIDENT</h2><span class="tag" id="caseid">CASE SZ-2049</span></div>
+    <div class="body">
+     <div class="alert critical" id="incident"><h3>Suspicious identity activity detected</h3><p>Multiple failed sign-ins followed by an unusual successful login. A privileged account may be compromised.</p><div class="alertmeta"><span class="pill high">SEVERITY: HIGH</span><span class="pill">MITRE: T1078</span><span class="pill">IDENTITY / CLOUD</span></div></div>
+     <div class="objective" id="brief"><strong>Mission:</strong> Investigate the alert, identify the compromised account, contain the suspicious session, and restore safe access. Choose actions carefully: unnecessary disruption costs points.</div>
+     <div style="display:flex;justify-content:space-between;margin-top:14px;font:9px 'IBM Plex Mono';color:var(--muted)"><span>INCIDENT ESCALATION</span><span id="risklabel">42 / 100</span></div><div class="meter"><span id="riskbar" style="width:42%"></span></div>
+    </div>
+   </section>
+   <section class="panel">
+    <div class="ph"><h2>02 / INVESTIGATION TOOLKIT</h2><span class="tag">DEFENSIVE ACTIONS</span></div>
+    <div class="body"><div class="grid2" id="tools">
+     <div class="tool"><strong>▣ AUTHENTICATION LOGS</strong><p>Review sign-in history, source locations and account anomalies.</p><button data-action="logs">INSPECT LOGS</button></div>
+     <div class="tool"><strong>⌁ ENDPOINT TELEMETRY</strong><p>Check device activity and suspicious process indicators.</p><button data-action="endpoint">SCAN ENDPOINT</button></div>
+     <div class="tool"><strong>◎ NETWORK FLOW</strong><p>Inspect outbound connections and unusual traffic patterns.</p><button data-action="network">TRACE TRAFFIC</button></div>
+     <div class="tool"><strong>◇ THREAT INTEL</strong><p>Compare indicators against the simulation's threat feed.</p><button data-action="intel">CHECK INTEL</button></div>
+     <div class="tool"><strong>⛨ CONTAINMENT</strong><p>Isolate a device or revoke a suspicious active session.</p><button data-action="contain">CONTAIN THREAT</button></div>
+     <div class="tool"><strong>✚ RECOVERY</strong><p>Reset credentials and enforce stronger sign-in protection.</p><button data-action="recover">SECURE ACCOUNT</button></div>
+    </div></div>
+   </section>
+   <section class="panel">
+    <div class="ph"><h2>03 / SECURITY EVENT STREAM</h2><div class="tabs"><button class="tab active" data-tab="all">ALL</button><button class="tab" data-tab="alerts">ALERTS</button><button class="tab" data-tab="actions">ACTIONS</button></div></div>
+    <div class="body"><div class="log" id="logs"></div></div>
+   </section>
+  </div>
+  <div>
+   <section class="panel">
+    <div class="ph"><h2>04 / RESPONSE PLAYBOOK</h2><span class="tag" id="stepcount">0 / 4 COMPLETE</span></div>
+    <div class="body">
+     <div class="objective">Complete the incident response lifecycle in the correct order. Evidence must be collected before disruptive containment.</div>
+     <div id="checklist" style="margin-top:10px">
+      <div class="check" data-step="investigate"><span class="box"></span><span>Investigate sign-in evidence</span></div>
+      <div class="check" data-step="identify"><span class="box"></span><span>Identify compromised identity</span></div>
+      <div class="check" data-step="contain"><span class="box"></span><span>Contain suspicious session</span></div>
+      <div class="check" data-step="recover"><span class="box"></span><span>Recover and harden access</span></div>
+     </div><div class="progress"><span id="progress"></span></div>
+     <div class="actionrow"><button class="primary" id="submit" disabled>SUBMIT INCIDENT REPORT ↗</button><button id="hint">HINT</button></div>
+    </div>
+   </section>
+   <section class="panel">
+    <div class="ph"><h2>05 / NETWORK MAP</h2><span class="tag">SEGMENT OVERVIEW</span></div>
+    <div class="body">
+     <svg viewBox="0 0 420 230" width="100%" role="img" aria-label="Simplified network map">
+      <defs><linearGradient id="node" x2="1" y2="1"><stop stop-color="#183d4d"/><stop offset="1" stop-color="#102331"/></linearGradient></defs>
+      <g stroke="#36596c" stroke-width="1.4" fill="none"><path d="M210 40 L95 105 L95 180 M210 40 L210 105 L210 180 M210 40 L325 105 L325 180"/><path d="M95 105 L210 105 L325 105" stroke-dasharray="4 5"/></g>
+      <g font-family="IBM Plex Mono" font-size="9" text-anchor="middle">
+       <rect x="157" y="10" width="106" height="34" rx="3" fill="url(#node)" stroke="#4e94a5"/><text x="210" y="24" fill="#8be7e9">IDENTITY HUB</text><text x="210" y="35" fill="#718d9d">SSO / MFA</text>
+       <rect x="48" y="88" width="94" height="35" rx="3" fill="url(#node)" stroke="#4e94a5"/><text x="95" y="102" fill="#b8d3e2">FINANCE</text><text x="95" y="114" fill="#718d9d">12 HOSTS</text>
+       <rect x="163" y="88" width="94" height="35" rx="3" fill="url(#node)" stroke="#ff7185" id="cloudbox"/><text x="210" y="102" fill="#ff9baa">CLOUD APP</text><text x="210" y="114" fill="#718d9d">PRIVILEGED</text>
+       <rect x="278" y="88" width="94" height="35" rx="3" fill="url(#node)" stroke="#4e94a5"/><text x="325" y="102" fill="#b8d3e2">DEV OPS</text><text x="325" y="114" fill="#718d9d">8 HOSTS</text>
+       <rect x="48" y="164" width="94" height="35" rx="3" fill="url(#node)" stroke="#4e94a5"/><text x="95" y="178" fill="#b8d3e2">DB CLUSTER</text><text x="95" y="190" fill="#718d9d">INTERNAL</text>
+       <rect x="163" y="164" width="94" height="35" rx="3" fill="url(#node)" stroke="#4e94a5"/><text x="210" y="178" fill="#b8d3e2">BACKUP VAULT</text><text x="210" y="190" fill="#718d9d">PROTECTED</text>
+       <rect x="278" y="164" width="94" height="35" rx="3" fill="url(#node)" stroke="#4e94a5"/><text x="325" y="178" fill="#b8d3e2">EDGE GATEWAY</text><text x="325" y="190" fill="#718d9d">FILTERED</text>
+      </g>
+      <circle cx="210" cy="27" r="3" fill="#70e0b1"><animate attributeName="opacity" values="1;.25;1" dur="2s" repeatCount="indefinite"/></circle>
+     </svg>
+     <div style="display:flex;gap:12px;flex-wrap:wrap;font:9px 'IBM Plex Mono';color:var(--muted)"><span><i class="dot"></i>HEALTHY</span><span style="color:var(--red)">● UNDER INVESTIGATION</span></div>
+    </div>
+   </section>
+   <section class="panel">
+    <div class="ph"><h2>06 / ANALYST NOTES</h2><span class="tag">LOCAL SCRATCHPAD</span></div>
+    <div class="body"><textarea id="notes" placeholder="Record observations, indicators, and your reasoning..." style="width:100%;height:90px;resize:vertical;background:#09131d;border:1px solid var(--line);color:var(--text);padding:10px;font:10px/1.6 'IBM Plex Mono';outline:none"></textarea><div style="font:9px 'IBM Plex Mono';color:var(--muted);margin-top:7px">Notes stay in this browser session.</div></div>
+   </section>
+  </div>
+ </div>
+ <div class="footer"><span>SIGNAL ZERO // FICTIONAL TRAINING ENVIRONMENT</span><span>NO REAL SYSTEMS ARE CONNECTED · ALL INDICATORS ARE SIMULATED</span></div>
+</main>
+<div class="overlay hidden" id="startscreen"><div class="modal"><div class="kicker">SIGNAL ZERO / TRAINING SIMULATION</div><h2>Welcome to the SOC.</h2><p>You are the on-call security analyst. A privileged cloud identity may be compromised. Investigate the evidence, identify the account, contain the suspicious session, and recover access before the simulated impact timer expires.</p><p><b>Training goals:</b> evidence-led investigation, incident containment, and account recovery. This game uses fictional logs and defensive actions only.</p><button class="primary" id="begin">START INCIDENT →</button></div></div>
+<div class="overlay hidden" id="finish"><div class="modal"><div class="kicker" id="finishkicker">INCIDENT CLOSED</div><h2 id="finishtitle">Good work, analyst.</h2><p id="finishtext"></p><button id="restart">RUN ANOTHER SHIFT ↗</button></div></div>
+<div class="toast" id="toast"></div>
+<script src="game.js"></script>
+</body></html>
